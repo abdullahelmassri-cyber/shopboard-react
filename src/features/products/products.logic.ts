@@ -1,16 +1,17 @@
-import type { CatalogProduct, CatalogState, Category, PriceRange } from "./products.types";
+import type { ProductDetails } from "./products.types";
+import type { CatalogState, Category, PriceRange } from "./products.types";
 
 const ALL_CATEGORIES = "all";
 
-export function getCategories(products: readonly CatalogProduct[]): Category[] {
+export function getCategories(products: readonly ProductDetails[]): Category[] {
   return [...new Set(products.map((product) => product.category))];
 }
 
-export function getVisibleProducts(
-  products: readonly CatalogProduct[],
+export function getVisibleProducts<T extends ProductDetails>(
+  products: readonly T[],
   { search, category, sort }: CatalogState,
   priceRange: PriceRange = {},
-): CatalogProduct[] {
+): T[] {
   const query = search.trim().toLowerCase();
 
   const result = products.filter((product) => {

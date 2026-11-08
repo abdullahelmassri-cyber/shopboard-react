@@ -1,9 +1,16 @@
 import { CartPanel } from "../features/cart/components/CartPanel";
-import { CatalogPage } from "../features/products/components/CatalogPage";
 import { useCart } from "../features/cart/hooks/useCart";
+import { buildCartLines, cartCount, cartTotal } from "../features/cart/cart.logic";
+import { useProducts } from "../features/products/hooks/useProducts";
+import { CatalogPage } from "../features/products/components/CatalogPage";
 
 function App() {
-  const cart = useCart();
+  const { state: productsState, retry } = useProducts();
+  const { items } = useCart();
+  const products = productsState.status === "success" ? productsState.products : [];
+  const lines = buildCartLines(items, products);
+  const count = cartCount(items);
+  const total = cartTotal(items, products);
 
   return (
     <>
@@ -22,20 +29,13 @@ function App() {
           </ul>
         </nav>
         <p className="cart" aria-live="polite">
-          Bag ({cart.count})
+          Bag ({count})
         </p>
       </header>
 
       <main id="top">
-        <CatalogPage onAddToCart={cart.addProduct} />
-        <CartPanel
-          lines={cart.lines}
-          count={cart.count}
-          total={cart.total}
-          onChangeQuantity={cart.changeQuantity}
-          onRemove={cart.removeProduct}
-          onClear={cart.clear}
-        />
+        <CatalogPage productsState={productsState} onRetry={retry} />
+        <CartPanel lines={lines} count={count} total={total} productsState={productsState} />
       </main>
       <footer className="site-footer">
         <p>Thoughtful everyday essentials, selected for ShopBoard.</p>

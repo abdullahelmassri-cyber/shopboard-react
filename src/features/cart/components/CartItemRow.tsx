@@ -1,12 +1,13 @@
 import type { CartLine } from "../cart.types";
+import { useCart } from "../hooks/useCart";
 
 export interface Props {
   line: CartLine;
-  onChangeQuantity: (productId: number, change: number) => void;
-  onRemove: (productId: number) => void;
 }
 
-export function CartItemRow({ line, onChangeQuantity, onRemove }: Props) {
+export function CartItemRow({ line }: Props) {
+  const { changeQuantity, removeItem } = useCart();
+
   return (
     <li className="cart-item">
       <span className="cart-item-name">{line.name}</span>
@@ -14,15 +15,15 @@ export function CartItemRow({ line, onChangeQuantity, onRemove }: Props) {
       <div className="cart-qty" aria-label={`Quantity for ${line.name}`}>
         <button
           type="button"
-          onClick={() => onChangeQuantity(line.id, -1)}
+          onClick={() => changeQuantity(line.id, -1)}
           aria-label={`Decrease ${line.name} quantity`}
         >
-          −
+          &minus;
         </button>
-        <span aria-live="polite">{line.quantity}</span>
+        <span aria-live="polite">{line.qty}</span>
         <button
           type="button"
-          onClick={() => onChangeQuantity(line.id, 1)}
+          onClick={() => changeQuantity(line.id, 1)}
           aria-label={`Increase ${line.name} quantity`}
         >
           +
@@ -31,7 +32,7 @@ export function CartItemRow({ line, onChangeQuantity, onRemove }: Props) {
       <button
         type="button"
         className="remove-button"
-        onClick={() => onRemove(line.id)}
+        onClick={() => removeItem(line.id)}
         aria-label={`Remove ${line.name} from cart`}
       >
         Remove

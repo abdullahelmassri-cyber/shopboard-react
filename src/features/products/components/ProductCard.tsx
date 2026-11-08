@@ -1,19 +1,20 @@
 import type { SyntheticEvent } from "react";
-import { PLACEHOLDER_IMAGE, type DisplayProduct } from "../hooks/useProducts";
+import { useCart } from "../../cart/hooks/useCart";
+import type { DisplayProduct } from "../hooks/useProducts";
+import { PLACEHOLDER_IMAGE } from "../hooks/useProducts";
 
 export interface Props {
   product: DisplayProduct;
-  onAddToCart: (productId: number) => void;
 }
 
-export function ProductCard({ product, onAddToCart }: Props) {
-  function usePlaceholderOnError(event: SyntheticEvent<HTMLImageElement>): void {
+export function ProductCard({ product }: Props) {
+  const { addItem } = useCart();
+
+  function handleImageError(event: SyntheticEvent<HTMLImageElement>): void {
     if (event.currentTarget.src !== PLACEHOLDER_IMAGE) {
       event.currentTarget.src = PLACEHOLDER_IMAGE;
     }
   }
-
-  const canAddToCart = product.inStock && product.cartSupported;
 
   return (
     <article>
@@ -21,7 +22,7 @@ export function ProductCard({ product, onAddToCart }: Props) {
         className="product-image"
         src={product.image}
         alt={product.name}
-        onError={usePlaceholderOnError}
+        onError={handleImageError}
       />
       <div className="product-details">
         <p className="category">{product.category}</p>
@@ -30,15 +31,11 @@ export function ProductCard({ product, onAddToCart }: Props) {
           <p className="price">${product.price.toFixed(2)}</p>
           <button
             type="button"
-            disabled={!canAddToCart}
-            onClick={() => onAddToCart(product.id)}
+            disabled={!product.inStock}
+            onClick={() => addItem(product.id)}
             aria-label={`Add ${product.name} to cart`}
           >
-            {!product.inStock
-              ? "Out of stock"
-              : product.cartSupported
-                ? "Add to bag"
-                : "Unavailable"}
+            {product.inStock ? "Add to bag" : "Out of stock"}
           </button>
         </div>
       </div>

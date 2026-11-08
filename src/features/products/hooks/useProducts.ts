@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { getProducts } from "../products.api";
-import { products as imageCatalog } from "../products.data";
+import { productImages } from "../products.images";
 import type { Product } from "../products.types";
 
 export const PLACEHOLDER_IMAGE =
@@ -8,7 +8,6 @@ export const PLACEHOLDER_IMAGE =
 
 export interface DisplayProduct extends Product {
   image: string;
-  cartSupported: boolean;
 }
 
 export type ProductsState =
@@ -16,66 +15,76 @@ export type ProductsState =
   | { status: "error"; message: string }
   | { status: "success"; products: DisplayProduct[] };
 
+let productsState: ProductsState = { status: "loading" };
 let inFlightRequest: Promise<Product[]> | null = null;
-
-function requestProducts(): Promise<Product[]> {
-  if (inFlightRequest !== null) return inFlightRequest;
-
-  const request = getProducts();
-  inFlightRequest = request;
-
-  const clearRequest = () => {
-    if (inFlightRequest === request) inFlightRequest = null;
-  };
-
-  void request.then(clearRequest, clearRequest);
-  return request;
-}
+let requestVersion = 0;
+const listeners = new Set<() => void>();
 
 function withProductImages(products: Product[]): DisplayProduct[] {
   return products.map((product) => {
-    const catalogProduct = imageCatalog.find((item) => item.id === product.id);
+    const image = productImages[product.id];
     return {
       ...product,
-      image: catalogProduct?.image ?? PLACEHOLDER_IMAGE,
-      cartSupported: catalogProduct !== undefined,
+      image: image ?? PLACEHOLDER_IMAGE,
     };
   });
 }
+
+function notifyListeners(): void {
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
+
+function getSnapshot(): ProductsState {
+  return productsState;
+}
+
+function startProductsRequest(): void {
+  if (inFlightRequest !== null) return;
+
+  const request = getProducts();
+  const currentVersion = requestVersion + 1;
+  requestVersion = currentVersion;
+  inFlightRequest = request;
+  productsState = { status: "loading" };
+  notifyListeners();
+
+  void request.then(
+    (products) => {
+      if (currentVersion !== requestVersion) return;
+      inFlightRequest = null;
+      productsState = { status: "success", products: withProductImages(products) };
+      notifyListeners();
+    },
+    (error: unknown) => {
+      if (currentVersion !== requestVersion) return;
+      inFlightRequest = null;
+      const message =
+        error instanceof Error ? error.message : "Unable to load products. Please try again.";
+      productsState = { status: "error", message };
+      notifyListeners();
+    },
+  );
+}
+
+function retryProducts(): void {
+  requestVersion += 1;
+  inFlightRequest = null;
+  startProductsRequest();
+}
+
+startProductsRequest();
 
 export function useProducts(): {
   state: ProductsState;
   retry: () => void;
 } {
-  const [state, setState] = useState<ProductsState>({ status: "loading" });
-  const [retryCount, setRetryCount] = useState(0);
-
-  useEffect(() => {
-    let active = true;
-
-    requestProducts()
-      .then((products) => {
-        if (active) {
-          setState({ status: "success", products: withProductImages(products) });
-        }
-      })
-      .catch((error: unknown) => {
-        if (!active) return;
-        const message =
-          error instanceof Error ? error.message : "Unable to load products. Please try again.";
-        setState({ status: "error", message });
-      });
-
-    return () => {
-      active = false;
-    };
-  }, [retryCount]);
-
-  return {
-    state,
-    retry: () => {
-      setState({ status: "loading" });
-      setRetryCount((count) => count + 1);
-    },
-  };
+  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+  return { state, retry: retryProducts };
 }

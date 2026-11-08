@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { getCategories, getVisibleProducts } from "../products.logic";
 import type { CatalogCategory, CatalogState, PriceRange, SortOption } from "../products.types";
-import { useProducts } from "../hooks/useProducts";
+import type { ProductsState } from "../hooks/useProducts";
 import { CatalogControls } from "./CatalogControls";
 import { CatalogError } from "./CatalogError";
 import { CatalogLoading } from "./CatalogLoading";
@@ -14,7 +14,8 @@ import { SearchField } from "./SearchField";
 import { SortSelect } from "./SortSelect";
 
 export interface Props {
-  onAddToCart: (productId: number) => void;
+  productsState: ProductsState;
+  onRetry: () => void;
 }
 
 const INITIAL_CATALOG_STATE: CatalogState = {
@@ -25,8 +26,7 @@ const INITIAL_CATALOG_STATE: CatalogState = {
 
 const INITIAL_PRICE_RANGE: PriceRange = {};
 
-export function CatalogPage({ onAddToCart }: Props) {
-  const { state: productsState, retry } = useProducts();
+export function CatalogPage({ productsState, onRetry }: Props) {
   const [catalogState, setCatalogState] = useState(INITIAL_CATALOG_STATE);
   const [priceRange, setPriceRange] = useState(INITIAL_PRICE_RANGE);
 
@@ -48,12 +48,7 @@ export function CatalogPage({ onAddToCart }: Props) {
   }
 
   const availableProducts = productsState.status === "success" ? productsState.products : [];
-  const visibleCatalogProducts = getVisibleProducts(availableProducts, catalogState, priceRange);
-  const productsById = new Map(availableProducts.map((product) => [product.id, product]));
-  const visibleProducts = visibleCatalogProducts.flatMap((product) => {
-    const displayProduct = productsById.get(product.id);
-    return displayProduct === undefined ? [] : [displayProduct];
-  });
+  const visibleProducts = getVisibleProducts(availableProducts, catalogState, priceRange);
 
   return (
     <>
@@ -78,7 +73,7 @@ export function CatalogPage({ onAddToCart }: Props) {
         <h2 id="products-heading">Shop all</h2>
         {productsState.status === "loading" ? <CatalogLoading /> : null}
         {productsState.status === "error" ? (
-          <CatalogError message={productsState.message} onRetry={retry} />
+          <CatalogError message={productsState.message} onRetry={onRetry} />
         ) : null}
         {productsState.status === "success" && productsState.products.length === 0 ? (
           <EmptyCatalog />
@@ -98,7 +93,7 @@ export function CatalogPage({ onAddToCart }: Props) {
             {visibleProducts.length === 0 ? (
               <NoMatches search={catalogState.search} onClear={clearFilters} />
             ) : (
-              <ProductGrid products={visibleProducts} onAddToCart={onAddToCart} />
+              <ProductGrid products={visibleProducts} />
             )}
           </>
         ) : null}

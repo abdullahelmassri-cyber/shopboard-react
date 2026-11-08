@@ -11,10 +11,6 @@ export interface Product extends ProductDetails {
   inStock: boolean;
 }
 
-export interface CatalogProduct extends ProductDetails {
-  image: string;
-}
-
 export type CatalogCategory = Category | "all";
 
 export type SortOption = "default" | "asc" | "desc";
