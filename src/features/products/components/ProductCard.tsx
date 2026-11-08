@@ -1,4 +1,5 @@
 import type { SyntheticEvent } from "react";
+import { Link } from "react-router";
 import { useCart } from "../../cart/hooks/useCart";
 import { PLACEHOLDER_IMAGE } from "../products.images";
 import type { DisplayProduct } from "../products.types";
@@ -18,15 +19,29 @@ export function ProductCard({ product }: Props) {
 
   return (
     <article>
-      <img
-        className="product-image"
-        src={product.image}
-        alt={product.name}
-        onError={handleImageError}
-      />
+      <Link
+        className="product-card-link"
+        style={{ color: "inherit", textDecoration: "none" }}
+        to={`/products/${product.id}`}
+      >
+        <img
+          className="product-image"
+          src={product.image}
+          alt={product.name}
+          onError={handleImageError}
+        />
+      </Link>
       <div className="product-details">
         <p className="category">{product.category}</p>
-        <h3>{product.name}</h3>
+        <h3>
+          <Link
+            className="product-card-link"
+            style={{ color: "inherit", textDecoration: "none" }}
+            to={`/products/${product.id}`}
+          >
+            {product.name}
+          </Link>
+        </h3>
         <div className="product-purchase">
           <p className="price">${product.price.toFixed(2)}</p>
           <button
