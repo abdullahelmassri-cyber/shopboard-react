@@ -6,8 +6,8 @@ import {
   getCartVersion,
   removeCartProduct,
   subscribeToCart,
-} from "./cartStoreAdapter";
-import { getCartCount, getCartLines, getCartTotal } from "../modules/cart/cart.state";
+} from "../cart.adapter";
+import { getCartCount, getCartLines, getCartTotal } from "../cart.state";
 
 export function useCart() {
   useSyncExternalStore(subscribeToCart, getCartVersion, getCartVersion);

@@ -1,4 +1,4 @@
-import type { PriceRange } from "../modules/products/products.types";
+import type { PriceRange } from "../products.types";
 
 export interface Props {
   value: PriceRange;

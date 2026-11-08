@@ -1,11 +1,6 @@
 import { useState } from "react";
-import { getCategories, getVisibleProducts } from "../modules/products/products.logic";
-import type {
-  CatalogCategory,
-  CatalogState,
-  PriceRange,
-  SortOption,
-} from "../modules/products/products.types";
+import { getCategories, getVisibleProducts } from "../products.logic";
+import type { CatalogCategory, CatalogState, PriceRange, SortOption } from "../products.types";
 import { useProducts } from "../hooks/useProducts";
 import { CatalogControls } from "./CatalogControls";
 import { CatalogError } from "./CatalogError";

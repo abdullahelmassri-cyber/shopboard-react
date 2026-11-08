@@ -1,4 +1,4 @@
-import type { CatalogCategory, Category } from "../modules/products/products.types";
+import type { CatalogCategory, Category } from "../products.types";
 
 export interface Props {
   value: CatalogCategory;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getProducts } from "../modules/products/products.api";
-import { products as imageCatalog } from "../modules/products/products.data";
-import type { Product } from "../modules/products/products.types";
+import { getProducts } from "../products.api";
+import { products as imageCatalog } from "../products.data";
+import type { Product } from "../products.types";
 
 export const PLACEHOLDER_IMAGE =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 480'%3E%3Crect width='640' height='480' fill='%23e8ece6'/%3E%3Cpath d='M240 290h160l-20-90h-120z' fill='%23cbd4cc'/%3E%3C/svg%3E";

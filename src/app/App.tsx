@@ -1,6 +1,6 @@
-import { CartPanel } from "./components/CartPanel";
-import { CatalogPage } from "./components/CatalogPage";
-import { useCart } from "./hooks/useCart";
+import { CartPanel } from "../features/cart/components/CartPanel";
+import { CatalogPage } from "../features/products/components/CatalogPage";
+import { useCart } from "../features/cart/hooks/useCart";
 
 function App() {
   const cart = useCart();

@@ -1,4 +1,4 @@
-import type { CartLine } from "../modules/cart/cart.types";
+import type { CartLine } from "../cart.types";
 import { CartItemRow } from "./CartItemRow";
 import { CartSummary } from "./CartSummary";
 

@@ -1,4 +1,4 @@
-import type { SortOption } from "../modules/products/products.types";
+import type { SortOption } from "../products.types";
 
 export interface Props {
   value: SortOption;

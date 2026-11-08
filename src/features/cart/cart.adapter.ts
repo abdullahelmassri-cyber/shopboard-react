@@ -1,4 +1,4 @@
-import { addToCart, changeQuantity, clearCart, removeFromCart } from "../modules/cart/cart.state";
+import { addToCart, changeQuantity, clearCart, removeFromCart } from "./cart.state";
 
 type CartListener = () => void;
 
