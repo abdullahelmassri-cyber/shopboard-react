@@ -1,55 +1,45 @@
 # ShopBoard React
 
-A React and TypeScript storefront.
+ShopBoard is a responsive storefront built with React, TypeScript, Vite, and React Router. It includes a searchable product catalog, product details, a shared persistent cart, and a validated demo checkout. Tailwind CSS and shadcn/ui components provide the checkout styling.
 
-## Component tree
+## Getting started
 
-The tree shows reusable component nesting from the current JSX. HTML elements
-such as `header`, `main`, `section`, and `ul` are shown only where they contain
-components or distinguish conditional rendering branches.
+Install dependencies and start the development server:
 
-```text
-App — no props
-├── header
-├── main
-│   ├── CatalogPage — `onAddToCart: (productId: number) => void`
-│   │   ├── hero section (HTML only)
-│   │   └── products section
-│   │       ├── CatalogLoading (loading branch) — no props
-│   │       ├── CatalogError (error branch) — `message: string`; `onRetry: () => void`
-│   │       ├── EmptyCatalog (successful empty response) — no props
-│   │       └── successful non-empty response
-│   │           ├── CatalogControls — `children: ReactNode`
-│   │           │   ├── SearchField — `value: string`; `onChange: (value: string) => void`
-│   │           │   ├── CategoryFilter — `value: CatalogCategory`; `options: Category[]`; `onChange: (value: CatalogCategory) => void`
-│   │           │   ├── PriceFilter — `value: PriceRange`; `onChange: (value: PriceRange) => void`
-│   │           │   └── SortSelect — `value: SortOption`; `onChange: (value: SortOption) => void`
-│   │           ├── NoMatches (when filters produce no results) — `search: string`; `onClear: () => void`
-│   │           └── ProductGrid (when visible products exist) — `products: readonly DisplayProduct[]`; `onAddToCart: (productId: number) => void`
-│   │               └── ProductCard (once per product) — `product: DisplayProduct`; `onAddToCart: (productId: number) => void`
-│   └── CartPanel — `lines: CartLine[]`; `count: number`; `total: number`; `onChangeQuantity: (productId: number, change: number) => void`; `onRemove: (productId: number) => void`; `onClear: () => void`
-│       ├── CartItemRow (once per cart line; when cart is not empty) — `line: CartLine`; `onChangeQuantity: (productId: number, change: number) => void`; `onRemove: (productId: number) => void`
-│       └── CartSummary — `count: number`; `total: number`; `onClear: () => void`
-└── footer
+```sh
+npm install
+npm run dev
 ```
 
-### State ownership
+The development server prints its local URL. No environment variables are required. Product data and product images use external services, so an internet connection is needed for live catalog content.
 
-- **Products and request status** are owned by `useState` in `src/hooks/useProducts.ts` as a discriminated loading/error/success state. `CatalogPage` calls the hook and renders that state; successful products flow to the filter controls and `ProductGrid` through props.
-- **Search, category, and sort** are owned by `CatalogPage` in `src/components/CatalogPage.tsx` as `catalogState`. The corresponding controls receive their values and change callbacks as props.
-- **Price filter** is owned by `CatalogPage` in `src/components/CatalogPage.tsx` as `priceRange`, passed to `PriceFilter` with its update callback.
-- **Cart** is owned by the module-level cart variable in `src/modules/cart/cart.state.ts`. `App` calls `useCart()` once and passes lines, count, total, and action callbacks to `CartPanel`; `CartPanel` passes each line and row callbacks to `CartItemRow`, and count/total/clear to `CartSummary`.
+## Routes and features
 
-### Hooks and modules
+- `/` - Product catalog with search, category, price, and sort filters; empty and no-match states.
+- `/products/:id` - Product details, stock status, and add-to-cart action.
+- `/cart` - Shared cart with quantity controls, item removal, subtotal, and a checkout link.
+- `/checkout` - Validated checkout form and order summary. An empty cart cannot be checked out.
+- Any other path - Not Found page.
 
-- `useProducts` (`src/hooks/useProducts.ts`) fetches API products, ignores stale effect results, deduplicates an in-flight request, exposes retry, and adds matching catalog images or a placeholder.
-- `useCart` (`src/hooks/useCart.ts`) subscribes to cart version changes and returns current lines, count, total, and cart actions.
-- `cartStoreAdapter` (`src/hooks/cartStoreAdapter.ts`) wraps the existing cart state actions and notifies `useSyncExternalStore` subscribers after mutations.
-- Product fetching and catalog filtering use `src/modules/products/products.api.ts` and `src/modules/products/products.logic.ts`; cart data and calculations use `src/modules/cart/cart.state.ts` and `src/modules/cart/cart.logic.ts`.
+Pages are lazy-loaded. Suspense displays loading messages, and product-loading errors have a retry action.
 
-### Known limitations
+## Product data and cart
 
-Cart lines and totals are computed from `src/modules/products/products.data.ts`
-inside the copied cart module. If API product IDs, names, or prices change
-without corresponding catalog updates, cart validation, displayed details, or
-totals can diverge from the API.
+Products are fetched from `https://shopboard-api.vercel.app/api/products`, validated, and used by the catalog, product pages, cart, and checkout summary. Product images are matched by product ID, with a placeholder when no image is mapped or an image request fails.
+
+A cart provider at the application root shares cart state across routes. Cart items are saved in browser local storage and validated when read; invalid or unreadable saved data falls back to an empty cart. Product names and prices in the cart are resolved from the loaded product data.
+
+## Checks and build
+
+```sh
+npm run typecheck
+npm run lint
+npm run format:check
+npm run build
+```
+
+`npm run format` formats the project, and `npm run preview` serves a production build locally.
+
+## Demo checkout
+
+Checkout validates the customer's name, email, and address in the browser. Completing the form clears the cart and displays a thank-you message. **This is a demo only: it does not place or send a real order and does not process payment.** There is no backend checkout or payment integration. Product data and remote product images may be unavailable if their external services cannot be reached.
