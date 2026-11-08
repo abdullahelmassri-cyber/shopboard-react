@@ -1,5 +1,4 @@
 import type { CartLine } from "../cart.types";
-import type { ProductsState } from "../../products/hooks/useProducts";
 import { CartItemRow } from "./CartItemRow";
 import { CartSummary } from "./CartSummary";
 
@@ -7,17 +6,11 @@ export interface Props {
   lines: CartLine[];
   count: number;
   total: number;
-  productsState: ProductsState;
 }
 
-export function CartPanel({ lines, count, total, productsState }: Props) {
+export function CartPanel({ lines, count, total }: Props) {
   return (
-    <section
-      className="cart-panel"
-      id="cart"
-      aria-labelledby="cart-heading"
-      aria-busy={productsState.status === "loading"}
-    >
+    <section className="cart-panel" id="cart" aria-labelledby="cart-heading">
       <p className="eyebrow">Your selection</p>
       <h2 id="cart-heading">Your bag</h2>
       {lines.length === 0 ? (

@@ -1,3 +1,8 @@
+import type { DisplayProduct, Product } from "./products.types";
+
+export const PLACEHOLDER_IMAGE =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 480'%3E%3Crect width='640' height='480' fill='%23e8ece6'/%3E%3Cpath d='M240 290h160l-20-90h-120z' fill='%23cbd4cc'/%3E%3C/svg%3E";
+
 export const productImages: Record<number, string> = {
   1: "https://images.unsplash.com/photo-1594223274512-ad4803739b7c?auto=format&fit=crop&w=900&q=80",
   2: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=900&q=80",
@@ -12,3 +17,10 @@ export const productImages: Record<number, string> = {
   11: "https://images.pexels.com/photos/712883/pexels-photo-712883.jpeg?auto=compress&cs=tinysrgb&w=900",
   12: "https://images.unsplash.com/photo-1664286074240-d7059e004dff?auto=format&fit=crop&w=900&q=80",
 };
+
+export function withProductImages(products: Product[]): DisplayProduct[] {
+  return products.map((product) => ({
+    ...product,
+    image: productImages[product.id] ?? PLACEHOLDER_IMAGE,
+  }));
+}

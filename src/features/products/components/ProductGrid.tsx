@@ -1,4 +1,4 @@
-import type { DisplayProduct } from "../hooks/useProducts";
+import type { DisplayProduct } from "../products.types";
 import { ProductCard } from "./ProductCard";
 
 export interface Props {

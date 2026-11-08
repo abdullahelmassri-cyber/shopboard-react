@@ -1,16 +1,13 @@
-import { CartPanel } from "../features/cart/components/CartPanel";
+import { cartCount } from "../features/cart/cart.logic";
 import { useCart } from "../features/cart/hooks/useCart";
-import { buildCartLines, cartCount, cartTotal } from "../features/cart/cart.logic";
-import { useProducts } from "../features/products/hooks/useProducts";
-import { CatalogPage } from "../features/products/components/CatalogPage";
+import { CartSection } from "../features/cart/components/CartSection";
+import { CatalogSection } from "../features/products/components/CatalogSection";
+import { Hero } from "../features/products/components/Hero";
+import { ProductsBoundary } from "../features/products/components/ProductsBoundary";
 
 function App() {
-  const { state: productsState, retry } = useProducts();
   const { items } = useCart();
-  const products = productsState.status === "success" ? productsState.products : [];
-  const lines = buildCartLines(items, products);
   const count = cartCount(items);
-  const total = cartTotal(items, products);
 
   return (
     <>
@@ -34,8 +31,13 @@ function App() {
       </header>
 
       <main id="top">
-        <CatalogPage productsState={productsState} onRetry={retry} />
-        <CartPanel lines={lines} count={count} total={total} productsState={productsState} />
+        <Hero />
+        <ProductsBoundary loadingMessage="Loading the collection...">
+          <CatalogSection />
+        </ProductsBoundary>
+        <ProductsBoundary loadingMessage="Loading your bag...">
+          <CartSection />
+        </ProductsBoundary>
       </main>
       <footer className="site-footer">
         <p>Thoughtful everyday essentials, selected for ShopBoard.</p>

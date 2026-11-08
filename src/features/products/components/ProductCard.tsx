@@ -1,7 +1,7 @@
 import type { SyntheticEvent } from "react";
 import { useCart } from "../../cart/hooks/useCart";
-import type { DisplayProduct } from "../hooks/useProducts";
-import { PLACEHOLDER_IMAGE } from "../hooks/useProducts";
+import { PLACEHOLDER_IMAGE } from "../products.images";
+import type { DisplayProduct } from "../products.types";
 
 export interface Props {
   product: DisplayProduct;
